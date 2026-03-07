@@ -138,21 +138,26 @@ async def get_timeline(
     if not task_ids:
         return []
     
-    # PostgreSQL: to_char возвращает строку, что избегает проблем с типами
-    date_column = func.to_char(InteractionLog.created_at, "YYYY-MM-DD").label("date")
-    
+    # Fetch raw datetime and convert in Python to avoid SQLAlchemy type issues
     query = select(
-        date_column,
+        InteractionLog.created_at,
         func.count(InteractionLog.id).label("submissions")
     ).where(
         InteractionLog.item_id.in_(task_ids)
-    ).group_by(date_column).order_by(date_column.asc())
+    ).group_by(InteractionLog.created_at).order_by(InteractionLog.created_at.asc())
     
     results = (await session.exec(query)).all()
     
+    # Convert datetime to date string in Python
+    from collections import defaultdict
+    daily_counts = defaultdict(int)
+    for created_at, count in results:
+        date_str = created_at.strftime("%Y-%m-%d")
+        daily_counts[date_str] += count
+    
     return [
         {"date": date_str, "submissions": count}
-        for date_str, count in results
+        for date_str, count in sorted(daily_counts.items())
     ]
 
 

@@ -281,7 +281,6 @@ async def sync(session: AsyncSession) -> dict:
     result = await session.execute(stmt)
     total_logs = result.scalar_one()
     
-   =
     return {
         "new_records": new_logs,      
         "total_records": total_logs,  
