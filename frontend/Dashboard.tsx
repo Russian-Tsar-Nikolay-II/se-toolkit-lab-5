@@ -16,7 +16,7 @@ export default function Dashboard(): JSX.Element {
     datasets: [
       {
         label: 'Scores',
-         [5, 10, 15, 10, 5],
+        data: [5, 10, 15, 10, 5],
         backgroundColor: '#3b82f6'
       }
     ]
@@ -24,3 +24,4 @@ export default function Dashboard(): JSX.Element {
 
   return <Bar data={data} />
 }
+EOF
