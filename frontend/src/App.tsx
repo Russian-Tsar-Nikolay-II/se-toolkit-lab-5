@@ -1,5 +1,6 @@
 import { useState, useEffect, useReducer, FormEvent } from 'react'
 import './App.css'
+import Dashboard from './Dashboard'
 
 const STORAGE_KEY = 'api_key'
 
@@ -38,6 +39,7 @@ function App() {
   )
   const [draft, setDraft] = useState('')
   const [fetchState, dispatch] = useReducer(fetchReducer, { status: 'idle' })
+  const [currentPage, setCurrentPage] = useState<'items' | 'dashboard'>('items')
 
   useEffect(() => {
     if (!token) return
@@ -91,38 +93,62 @@ function App() {
     <div>
       <header className="app-header">
         <h1>Items</h1>
+        
+        {/* НАВИГАЦИЯ */}
+        <nav>
+          <button 
+            onClick={() => setCurrentPage('items')}
+            style={{ fontWeight: currentPage === 'items' ? 'bold' : 'normal' }}
+          >
+            Items
+          </button>
+          <button 
+            onClick={() => setCurrentPage('dashboard')}
+            style={{ fontWeight: currentPage === 'dashboard' ? 'bold' : 'normal' }}
+          >
+            Dashboard
+          </button>
+        </nav>
+        
         <button className="btn-disconnect" onClick={handleDisconnect}>
           Disconnect
         </button>
       </header>
 
-      {fetchState.status === 'loading' && <p>Loading...</p>}
-      {fetchState.status === 'error' && <p>Error: {fetchState.message}</p>}
+      {currentPage === 'dashboard' ? (
+        <Dashboard />
+      ) : (
+        <>
+          {fetchState.status === 'loading' && <p>Loading...</p>}
+          {fetchState.status === 'error' && <p>Error: {fetchState.message}</p>}
 
-      {fetchState.status === 'success' && (
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>ItemType</th>
-              <th>Title</th>
-              <th>Created at</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fetchState.items.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.type}</td>
-                <td>{item.title}</td>
-                <td>{item.created_at}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          {fetchState.status === 'success' && (
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>ItemType</th>
+                  <th>Title</th>
+                  <th>Created at</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fetchState.items.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.type}</td>
+                    <td>{item.title}</td>
+                    <td>{item.created_at}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
       )}
     </div>
   )
 }
 
 export default App
+EOF
